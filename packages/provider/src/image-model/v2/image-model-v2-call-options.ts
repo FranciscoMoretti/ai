@@ -2,9 +2,23 @@ import { SharedV2ProviderOptions } from '../../shared';
 
 export type ImageModelV2CallOptions = {
   /**
-Prompt for the image generation.
+Prompt for the image generation or edit.
      */
   prompt: string;
+
+  /**
+Image(s) to edit. Can be an array of base64-encoded image strings or image data (Uint8Array).
+Only used for image editing operations.
+     */
+  images?: Array<string> | Array<Uint8Array>;
+
+  /**
+Optional mask image whose fully transparent areas indicate where the image should be edited.
+Must be a valid PNG file with the same dimensions as the image.
+Can be either a base64-encoded image string or image data (Uint8Array).
+Only used for image editing operations.
+ */
+  mask?: string | Uint8Array;
 
   /**
 Number of images to generate.

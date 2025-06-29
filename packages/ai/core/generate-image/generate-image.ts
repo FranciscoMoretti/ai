@@ -34,6 +34,8 @@ as body parameters.
 export async function generateImage({
   model,
   prompt,
+  images,
+  mask,
   n = 1,
   maxImagesPerCall,
   size,
@@ -50,12 +52,26 @@ The image model to use.
   model: ImageModelV2;
 
   /**
-The prompt that should be used to generate the image.
+The prompt that should be used to generate or edit the image.
    */
   prompt: string;
 
   /**
-Number of images to generate.
+Optional image(s) to edit. When provided, the model will edit these images instead of generating new ones.
+Can be a single image or array of images (for models that support multiple image editing).
+Can be either a base64-encoded image string or image data (Uint8Array).
+   */
+  images?:  Array<Uint8Array> | Array<string>;
+
+  /**
+Optional mask image whose fully transparent areas indicate where the image should be edited.
+Must be a valid PNG file with the same dimensions as the image.
+Can be either a base64-encoded image string or image data (Uint8Array).
+   */
+  mask?: Uint8Array | string;
+
+  /**
+Number of images to generate or edit.
    */
   n?: number;
 
@@ -136,6 +152,8 @@ Only applicable for HTTP-based providers.
       retry(() =>
         model.doGenerate({
           prompt,
+          images,
+          mask,
           n: callImageCount,
           abortSignal,
           headers,
@@ -149,12 +167,12 @@ Only applicable for HTTP-based providers.
   );
 
   // collect result images, warnings, and response metadata
-  const images: Array<DefaultGeneratedFile> = [];
+  const resultImages: Array<DefaultGeneratedFile> = [];
   const warnings: Array<ImageGenerationWarning> = [];
   const responses: Array<ImageModelResponseMetadata> = [];
   const providerMetadata: ImageModelV2ProviderMetadata = {};
   for (const result of results) {
-    images.push(
+    resultImages.push(
       ...result.images.map(
         image =>
           new DefaultGeneratedFile({
@@ -183,12 +201,12 @@ Only applicable for HTTP-based providers.
     responses.push(result.response);
   }
 
-  if (!images.length) {
+  if (!resultImages.length) {
     throw new NoImageGeneratedError({ responses });
   }
 
   return new DefaultGenerateImageResult({
-    images,
+    images: resultImages,
     warnings,
     responses,
     providerMetadata,

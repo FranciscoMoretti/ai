@@ -16,14 +16,16 @@ async function main() {
 
   fs.writeFileSync(
     'edited-image.png',
-    Buffer.from(editResult.image.uint8Array)
+    Buffer.from(editResult.image.uint8Array),
   );
 
   // Example 2: Edit using base64-encoded image
   console.log('Editing an existing image with base64...');
-  const imageBuffer = fs.readFileSync(path.join(__dirname, '../../data/comic-cat.png'));
+  const imageBuffer = fs.readFileSync(
+    path.join(__dirname, '../../data/comic-cat.png'),
+  );
   const base64Image = imageBuffer.toString('base64');
-  
+
   const editResultBase64 = await generateImage({
     model: openai.image('gpt-image-1'),
     images: [base64Image],
@@ -32,7 +34,7 @@ async function main() {
 
   fs.writeFileSync(
     'edited-image-base64.png',
-    Buffer.from(editResultBase64.image.uint8Array)
+    Buffer.from(editResultBase64.image.uint8Array),
   );
 
   // Example 3: Edit multiple images with GPT-Image-1
@@ -54,13 +56,10 @@ async function main() {
   });
 
   multiEditResult.images.forEach((image, index) => {
-    fs.writeFileSync(
-      `multi-edit-${index}.png`,
-      Buffer.from(image.uint8Array)
-    );
+    fs.writeFileSync(`multi-edit-${index}.png`, Buffer.from(image.uint8Array));
   });
 
   console.log('All operations completed!');
 }
 
-main().catch(console.error); 
+main().catch(console.error);

@@ -61,7 +61,7 @@ Optional image(s) to edit. When provided, the model will edit these images inste
 Can be a single image or array of images (for models that support multiple image editing).
 Can be either a base64-encoded image string or image data (Uint8Array).
    */
-  images?:  Array<Uint8Array> | Array<string>;
+  images?: Array<Uint8Array> | Array<string>;
 
   /**
 Optional mask image whose fully transparent areas indicate where the image should be edited.

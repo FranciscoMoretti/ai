@@ -316,7 +316,10 @@ describe('doGenerate - Image Editing', () => {
       images: [imageData],
     });
 
-    expect(result.images).toStrictEqual(['edited-base64-image-1', 'edited-base64-image-2']);
+    expect(result.images).toStrictEqual([
+      'edited-base64-image-1',
+      'edited-base64-image-2',
+    ]);
 
     // Verify it's a FormData request
     const call = editServer.calls[0];
@@ -326,7 +329,8 @@ describe('doGenerate - Image Editing', () => {
   it('should edit image with base64 string', async () => {
     prepareEditResponse();
 
-    const base64Image = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==';
+    const base64Image =
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==';
     const dalleModel = provider.image('dall-e-2');
 
     await dalleModel.doGenerate({
@@ -369,7 +373,8 @@ describe('doGenerate - Image Editing', () => {
     prepareEditResponse();
 
     const imageData = new Uint8Array([137, 80, 78, 71]);
-    const base64Mask = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==';
+    const base64Mask =
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==';
     const dalleModel = provider.image('dall-e-2');
 
     await dalleModel.doGenerate({
@@ -421,8 +426,10 @@ describe('doGenerate - Image Editing', () => {
         seed: undefined,
         providerOptions: {},
         images: [imageData],
-      })
-    ).rejects.toThrow('Model dall-e-3 does not support image editing. Only dall-e-2 and gpt-image-1 are supported.');
+      }),
+    ).rejects.toThrow(
+      'Model dall-e-3 does not support image editing. Only dall-e-2 and gpt-image-1 are supported.',
+    );
   });
 
   it('should throw error for dall-e-2 with multiple images', async () => {
@@ -439,7 +446,7 @@ describe('doGenerate - Image Editing', () => {
         seed: undefined,
         providerOptions: {},
         images: [imageData1, imageData2],
-      })
+      }),
     ).rejects.toThrow('dall-e-2 only supports editing a single image.');
   });
 
@@ -561,9 +568,15 @@ describe('doGenerate - Image Editing', () => {
 
     const call = editServer.calls[editServer.calls.length - 1];
     expect(call.requestHeaders['authorization']).toBe('Bearer test-api-key');
-    expect(call.requestHeaders['openai-organization']).toBe('test-organization');
-    expect(call.requestHeaders['custom-provider-header']).toBe('provider-header-value');
-    expect(call.requestHeaders['custom-request-header']).toBe('request-header-value');
+    expect(call.requestHeaders['openai-organization']).toBe(
+      'test-organization',
+    );
+    expect(call.requestHeaders['custom-provider-header']).toBe(
+      'provider-header-value',
+    );
+    expect(call.requestHeaders['custom-request-header']).toBe(
+      'request-header-value',
+    );
   });
 
   it('should handle provider options in edit requests', async () => {

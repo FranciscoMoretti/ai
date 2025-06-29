@@ -39,6 +39,17 @@ export class OpenAIImageModel implements ImageModelV2 {
     private readonly config: OpenAIImageModelConfig,
   ) {}
 
+  private createImageBlob(input: string | Uint8Array): Blob {
+    if (typeof input === 'string') {
+      // For base64 strings, decode to binary data
+      const binaryData = Uint8Array.from(atob(input), c => c.charCodeAt(0));
+      return new Blob([binaryData], { type: 'image/png' });
+    } else {
+      // For Uint8Array, create a Blob directly
+      return new Blob([input], { type: 'image/png' });
+    }
+  }
+
   private getArgs({
     prompt,
     n,
@@ -69,7 +80,7 @@ export class OpenAIImageModel implements ImageModelV2 {
     // For edit operations, validate model support
     if (isEdit && !['dall-e-2', 'gpt-image-1'].includes(this.modelId)) {
       throw new Error(
-        `Model ${this.modelId} does not support image editing. Only dall-e-2 and gpt-image-1 are supported.`
+        `Model ${this.modelId} does not support image editing. Only dall-e-2 and gpt-image-1 are supported.`,
       );
     }
 
@@ -89,31 +100,12 @@ export class OpenAIImageModel implements ImageModelV2 {
       // Handle image input
       for (let i = 0; i < images.length; i++) {
         const img = images[i];
-        if (typeof img === 'string') {
-          // For base64 strings, decode to binary data
-          const binaryData = Uint8Array.from(atob(img), c => c.charCodeAt(0));
-          formData.append(
-            `image[${i}]`,
-            new Blob([binaryData], { type: 'image/png' })
-          );
-        } else {
-          // For Uint8Array, create a File directly
-          formData.append(
-            `image[${i}]`,
-            new Blob([img as unknown as Uint8Array], { type: 'image/png' })
-          );
-        }
+        formData.append(`image[${i}]`, this.createImageBlob(img));
       }
 
       // Handle mask if provided
       if (mask != null) {
-        if (typeof mask === 'string') {
-          // For base64 strings, decode to binary data
-          const binaryData = Uint8Array.from(atob(mask), c => c.charCodeAt(0));
-          formData.append('mask', new File([binaryData], 'mask', { type: 'image/png' }));
-        } else {
-          formData.append('mask', new File([mask], 'mask', { type: 'image/png' }));
-        }
+        formData.append('mask', new File([this.createImageBlob(mask)], 'mask'));
       }
 
       // Add provider-specific options
@@ -178,7 +170,7 @@ export class OpenAIImageModel implements ImageModelV2 {
       });
 
       return {
-        images: response.data.map((item) => item.b64_json),
+        images: response.data.map(item => item.b64_json),
         warnings: args.warnings,
         response: {
           timestamp: currentDate,
